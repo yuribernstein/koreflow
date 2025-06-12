@@ -2057,5 +2057,4 @@ If you use Koreflow or its derivatives in a commercial product or service (inclu
 - Open source your derived work under AGPLv3, or
 - Contact the author to arrange a 1.5% gross revenue share license.
 
-See `docs/LICENSE` and `docs/EULA.md` for details.
-```
+See [LICENSE](./LICENSE/LICENSE.md) and [EULA](./LICENSE/EULA.md) for details.

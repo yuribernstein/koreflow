@@ -1,0 +1,20 @@
+name: aiagent_input
+class: Aiagent_input
+version: "1.0"
+author: SeyoAWE Team
+
+methods:
+  - name: wait_for_input
+    description: "Blocks until agent input is received via API"
+    arguments:
+      - name: expected_keys
+        type: list
+        required: false
+      - name: timeout_seconds
+        type: int
+        required: false
+    returns:
+      type: object
+      structure:
+        status: string
+        data: object

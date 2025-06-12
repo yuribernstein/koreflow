@@ -1,0 +1,20 @@
+name: new_module
+class: New_module
+version: '1.0'
+author: Your Name
+methods:
+- name: run
+  description: Example method that echoes input.
+  arguments:
+  - name: param1
+    type: string
+    required: true
+  - name: param2
+    type: int
+    required: false
+  returns:
+    type: object
+    structure:
+      status: one_of(['ok', 'fail'])
+      message: string
+      data: object

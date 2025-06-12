@@ -1,0 +1,53 @@
+name: aws_monitoring
+class: AwsMonitoring
+version: "1.0"
+author: SeyoAWE
+
+methods:
+  - name: get_metric_data
+    description: "Fetch historical CloudWatch metric data for EC2, RDS, or ALB resources"
+    arguments:
+      - name: namespace
+        type: string
+        required: true
+      - name: metric_name
+        type: string
+        required: true
+      - name: dimensions
+        type: list
+        required: true
+      - name: start_time
+        type: string
+        required: true
+      - name: end_time
+        type: string
+        required: true
+      - name: period
+        type: int
+        required: false
+      - name: stat
+        type: string
+        required: false
+
+  - name: get_recent_utilization
+    description: "Get recent CloudWatch metric for a resource in the last 5 minutes"
+    arguments:
+      - name: namespace
+        type: string
+        required: true
+      - name: metric_name
+        type: string
+        required: true
+      - name: dimensions
+        type: list
+        required: true
+      - name: stat
+        type: string
+        required: false
+
+  - name: check_alarm_status
+    description: "Check the state of a named CloudWatch alarm"
+    arguments:
+      - name: alarm_name
+        type: string
+        required: true

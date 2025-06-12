@@ -1,0 +1,28 @@
+workflow:
+  name: hello_world
+
+  match:
+    conditions:
+      - path: payload.mode # parses the incoming payload searching for the key `mode`
+        operator: equals
+        value: "test"      # checks if they value of the key `mode` matches to `test`
+        id: test_mode      # registes matching condition as `test_mode`
+    condition_logic: test_mode  # if `test_mode` condition is true (e.g. payload.mode is `test`) then the workflow will be executed
+
+  payload_parser:
+    - path: payload.user   #  parses the incoming payload searching for the key `user`
+      var: user            # registers the value from the payload as variable `user` in the workflow context, allowing to re-use it
+      absent_action: ignore # if the value is not present - workflow will continue. if not set - workflow will fail
+
+  context_variables:   
+    - name: channel
+      default: "#general"
+
+  steps:
+    - id: say_hello
+      type: action
+      action: slack_module.Slack.send_info_message
+      input:
+        channel: "{{ context.channel }}"
+        title: "Hello!"
+        message: "Triggered by {{ context.user or 'unknown' }}"

@@ -1,0 +1,111 @@
+workflow:
+  name: "Full Featured SeyoAWE Flow"
+  description: "Demonstrates all core features of SeyoAWE in one cohesive workflow"
+
+  trigger:
+    type: api
+
+  steps:
+    - id: slack_notify_start
+      type: action
+      action: slack_module.Slack.send_info_message
+      input:
+        title: "Workflow Started"
+        channel: "#ops-alerts"
+        message: "🚀 Workflow *{{ context.workflow_id }}* has started."
+
+    - id: generate_approval_link
+      type: approval
+      timeout_minutes: 30
+      message: "Approval needed for deployment"
+      delivery_step:
+        id: email_delivery
+        type: action
+        action: email_module.Email.send
+        input:
+          to: "ops-team@example.com"
+          subject: "Approval Needed: {{ context.workflow_id }}"
+          template: "approval_email.html"
+          variables:
+            link: "{{ context.approval_link }}"
+            initiator: "{{ context.payload.user }}"
+
+    - id: approval_form
+      type: webform
+      module: webform_module
+      config_file: "configs/approval_form_config.js"
+      css_file: "themes/default.css"
+      timeout_minutes: 30
+      register_output: approval_data
+
+    - id: git_branch
+      type: action
+      action: git_module.Git.create_branch
+      input:
+        repo: "https://github.com/yuribernstein/demo-repo.git"
+        token: "{{ secrets.github_token }}"
+        base_branch: "main"
+        new_branch: "feature-{{ context.timestamp }}"
+
+    - id: api_call
+      type: action
+      action: api_module.API.call
+      input:
+        method: POST
+        url: "https://example.com/deploy"
+        headers:
+          Authorization: "Bearer {{ secrets.deploy_token }}"
+        payload:
+          env: "{{ context.approval_data.form_data.env }}"
+          note: "{{ context.approval_data.form_data.note }}"
+          workflow_id: "{{ context.workflow_id }}"
+
+    - id: chatbot_summary
+      type: action
+      action: chatbot_module.Chatbot.ask
+      input:
+        provider: "openai"
+        api_key: "{{ secrets.openai_key }}"
+        system_prompt: "Summarize what this workflow did for a status update."
+        user_message: "Generate a short deployment summary including branch, environment, and user note."
+      register_output: chatbot_reply
+
+    - id: final_email
+      type: action
+      action: email_module.Email.send_email
+      input:
+        to: "stakeholders@example.com"
+        subject: "✅ Workflow Completed: {{ context.workflow_id }}"
+        template: "summary_email.html"
+        variables:
+          summary: "{{ context.chatbot_reply }}"
+          environment: "{{ context.approval_data.form_data.env }}"
+
+    - id: slack_done
+      type: action
+      action: slack_module.Slack.send_info_message
+      input:
+        title: "Workflow Completed"
+        channel: "#ops-alerts"
+        message: "🎉 Workflow *{{ context.workflow_id }}* completed successfully."
+
+  on_failure:
+    steps:
+      - id: notify_failure_slack
+        type: action
+        action: slack_module.Slack.send_info_message
+        input:
+          title: "Workflow Failed"
+          channel: "#ops-alerts"
+          message: "❌ Workflow *{{ context.workflow_id }}* failed at step *{{ context.failed_step_id }}*."
+
+      - id: notify_failure_email
+        type: action
+        action: email_module.Email.send_email
+        input:
+          to: "oncall@example.com"
+          subject: "⚠️ Workflow Failed"
+          template: "failure_email.html"
+          variables:
+            step: "{{ context.failed_step_id }}"
+            error: "{{ context.failed_reason }}"

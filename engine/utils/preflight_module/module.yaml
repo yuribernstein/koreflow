@@ -1,0 +1,12 @@
+name: preflight_module
+class: Preflight
+version: 1.0
+author: SeyoAWE
+
+methods:
+  - name: validate_manifest
+    description: Validates a module.yaml manifest for structure and completeness.
+    arguments:
+      - name: module_path
+        type: string
+        required: true

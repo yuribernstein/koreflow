@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    build-essential \
+    libffi-dev \
+    libssl-dev \
+    patchelf \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/koreflow
+
+COPY . /opt/koreflow
+
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt
+
+RUN chmod +x build.sh
+
+CMD ["/bin/bash", "build.sh"]

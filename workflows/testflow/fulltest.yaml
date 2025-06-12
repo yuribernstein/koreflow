@@ -1,0 +1,148 @@
+workflow:
+  name: full_system_test
+
+
+  match:
+    conditions:
+      - path: payload.mode
+        operator: equals
+        value: "test"
+        id: is_test_mode
+    condition_logic: is_test_mode
+
+  context_variables:
+    - name: channel
+      type: string
+      default: "#new-channel"
+
+    - name: openai_key
+      type: string
+      default: ""
+
+    - name: github_token
+      type: string
+      default: ""
+
+
+
+  context_modules:
+    git:
+      module: git_module.Git
+      repo: "https://github.com/yuribernstein/testrepo.git"
+      branch: "feature/test-full-workflow"
+      base_branch: "main"
+      work_dir: "/tmp/gitops-full-test"
+      handle_existing_branch: "pull"
+
+  global_failure_handler:
+    id: notify_global_failure
+    type: action
+    action: slack_module.Slack.send_info_message
+    input:
+      channel: "{{ context.channel }}"
+      title: "Workflow Failure"
+      message: "Workflow '{{ context.workflow_name }}' failed at step '{{ context.failed_step_id }}' \n\n '{{ context.failed_reason }}'."
+      color: "danger"
+
+  steps:
+
+    - id: slack_start_notify
+      type: action
+      action: slack_module.Slack.send_info_message
+      input:
+        channel: "{{ context.channel }}"
+        title: "Starting Full System Test"
+        message: "Demoing workflow now 🚀"
+        color: "info"
+
+    - id: api_test_call
+      type: action
+      action: api_module.API.call
+      input:
+        method: "GET"
+        url: "https://httpbin.org/get"
+
+    - id: slack_api_result
+      type: action
+      action: slack_module.Slack.send_info_message
+      input:
+        channel: "{{ context.channel }}"
+        title: "API Call Result"
+        keyed_message:
+          - key: "Status Code"
+            value: "{{ context.step_results.api_test_call.data.status_code }}"
+          - key: "URL"
+            value: "{{ context.step_results.api_test_call.data.url }}"
+        color: "info"
+
+    - id: git_add_file
+      type: action
+      action: context.git.add_file_from_template
+      input:
+        template: "env_config.yaml.j2"
+        destination: "test_envs/full_test_config.yaml"
+
+    - id: git_open_pr
+      type: action
+      action: context.git.open_pr
+      input:
+        title: "Test Full System PR"
+        body: "This PR was automatically created during a full system test."
+
+    - id: slack_notify_pr
+      type: action
+      action: slack_module.Slack.send_info_messageaaa
+      input:
+        channel: "{{ context.channel }}"
+        title: "PR Created"
+        message: "New PR ready: <{{ context.step_results.git_open_pr.data.url }}|View PR>"
+        color: "good"
+
+    - id: chatbot_test
+      type: action
+      action: chatbot_module.Chatbot.ask
+      input:
+        provider: "openai"
+        model: "gpt-4"
+        system_prompt: >
+          You are a testing bot. Reply with a short success message.
+        user_message: >
+          Please confirm that the system-wide test is proceeding successfully. End it with a joke about using https://httpbin.org/get for testing.
+        temperature: 0.5
+        api_key: "{{ context.openai_key }}"
+
+    - id: slack_chatbot_reply
+      type: action
+      action: slack_module.Slack.send_info_message
+      input:
+        channel: "{{ context.channel }}"
+        title: "Chatbot Response"
+        message: "{{ context.step_results.chatbot_test.data.reply }}"
+        color: "good"
+
+    - id: send_email_approval_form
+      type: webform
+      module: webform
+      config_file: demo.js
+      css_file: custom.css
+      timeout_minutes: 120
+      delivery_step:
+        id: send_form_over_email
+        type: action
+        action: email_module.Email.send_email
+        input:
+          to: "yuri.bernstein@gmail.com"
+          subject: "Form Link to Fill"
+          template: "notify_with_approval_webform.j2"
+      register_output: webform_input
+
+
+    - id: slack_test_complete
+      type: action
+      action: slack_module.Slack.send_info_message
+      input:
+        channel: "{{ context.channel }}"
+        title: "Full System Test Complete"
+        message: "All modules tested successfully! User input is: {{ context.webform_input.data }}"
+        color: "good"
+      

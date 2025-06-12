@@ -1,0 +1,3 @@
+method: run
+example_input:
+  message: "Logging from example_input"

@@ -1,0 +1,31 @@
+FROM python:3.11-slim
+
+# Set env variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    build-essential \
+    libffi-dev \
+    libssl-dev \
+    patchelf \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set workdir
+WORKDIR /opt/seyoawe
+
+# Copy project into container (ensure your docker build context is correct!)
+COPY . /opt/seyoawe
+
+# Install Python requirements (system-wide)
+RUN pip install --upgrade pip \
+    && pip install -r dev_utils/requirements.txt
+
+# Make build script executable
+RUN chmod +x dev_utils/build.sh
+
+# Run build script as default command
+CMD ["/bin/bash", "dev_utils/build.sh"]

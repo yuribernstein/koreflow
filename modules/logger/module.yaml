@@ -1,0 +1,12 @@
+name: logger
+class: Logger
+version: "1.0"
+author: SeyoAWE
+
+methods:
+  - name: run
+    description: "Logs a message to the engine logs"
+    arguments:
+      - name: message
+        type: string
+        required: true

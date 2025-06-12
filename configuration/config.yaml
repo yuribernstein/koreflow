@@ -1,0 +1,63 @@
+  logging:
+    level: DEBUG
+    format: "[%(asctime)s] [%(levelname)s] [%(name)s:%(lineno)d] - %(message)s" # format for log messages
+    
+  directories: # use absolute paths to directories
+    workdir: /koreflow/koreflow-execution-plane
+    modules: /koreflow/koreflow-execution-plane/modules
+    workflows: /koreflow/koreflow-execution-plane/workflows
+    lifetimes: /koreflow/koreflow-execution-plane/lifetime
+    logs: /koreflow/koreflow-execution-plane/logs
+
+  app:
+    port: 8080
+    poll_for_modules_on_startup: false # controlls the poller behavior. setting to true will override your modules every time the app boots
+    ignored_workflow_dirs: # directories under directories.workflows that will be ignored by the engine
+      - "samples"
+      - "deprecated"
+    base_url: http://localhost:8080
+
+  module_dispatcher: 
+    port: 8081
+    url: http://localhost:8081/poll
+    md5_strict: false
+    customer_id: community
+    secret_key: community
+    modules_repo: https://github.com/yuribernstein/koreflow.git
+    modules_repo_access_key: ""
+    modules_branch: lifetime
+
+  module_defaults:
+    chatbot:
+      provider: openai
+      model: gpt-4
+      temperature: 0.7
+      api_key: ""
+
+    api:
+      timeout: 15
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ context.default_api_token }}"
+      blocking_defaults:
+        poll_interval_seconds: 5
+        timeout_minutes: 3
+
+    email_module:
+      smtp_host: smtp.gmail.com
+      smtp_port: 587
+      smtp_user: "your-email@example.com"
+      smtp_pass: "your-email-password"
+      from_addr: "koreflow Bot <koreflow@example.com>"
+
+    slack_module:
+      webhook_url: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX"
+
+    git_module:
+      github_token: "ghp_YOUR_GITHUB_TOKEN"
+
+
+    jira_module:
+      jira_base_url: "https://yourcompany.atlassian.net"
+      username: "jirauser@yourcompany.com"
+      api_token: "YOUR_API_TOKEN"

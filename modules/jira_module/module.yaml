@@ -1,0 +1,108 @@
+name: jira_module
+class: JiraModule
+version: "1.0"
+author: SeyoAWE
+
+methods:
+  - name: create_ticket
+    description: "Create a Jira issue"
+    arguments:
+      - name: project_key
+        type: string
+        required: true
+      - name: summary
+        type: string
+        required: true
+      - name: description
+        type: string
+        required: false
+      - name: issue_type
+        type: string
+        required: true
+      - name: custom_fields
+        type: object
+        required: false
+      - name: assignee
+        type: string
+        required: false
+
+  - name: update_ticket
+    description: "Update a Jira issue"
+    arguments:
+      - name: issue_key
+        type: string
+        required: true
+      - name: fields
+        type: object
+        required: true
+
+  - name: add_comment
+    description: "Add comment to issue"
+    arguments:
+      - name: issue_key
+        type: string
+        required: true
+      - name: comment
+        type: string
+        required: true
+
+  - name: get_ticket
+    description: "Get issue details"
+    arguments:
+      - name: issue_key
+        type: string
+        required: true
+
+  - name: search_tickets
+    description: "Search issues via JQL"
+    arguments:
+      - name: jql
+        type: string
+        required: true
+
+  - name: get_status
+    description: "Get ticket status"
+    arguments:
+      - name: issue_key
+        type: string
+        required: true
+
+  - name: attach_file
+    description: "Attach file to Jira issue"
+    arguments:
+      - name: issue_key
+        type: string
+        required: true
+      - name: file_path
+        type: string
+        required: true
+
+  - name: transition_ticket
+    description: "Transition issue to a new status"
+    arguments:
+      - name: issue_key
+        type: string
+        required: true
+      - name: transition_id
+        type: string
+        required: true
+
+  - name: add_watcher
+    description: "Add watcher to Jira issue"
+    arguments:
+      - name: issue_key
+        type: string
+        required: true
+      - name: username
+        type: string
+        required: true
+
+      - name: watchers
+        type: list
+        required: false
+      - name: labels
+        type: list
+        required: false
+      - name: components
+        type: list
+        required: false

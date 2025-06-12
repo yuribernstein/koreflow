@@ -1,0 +1,107 @@
+name: ec2_demo_stack_with_cost_guardrails
+description: >
+  Demo: provision EC2 if forecast is healthy, monitor it, upgrade on approval, notify via Jira, then clean up.
+trigger:
+  type: ad-hoc
+
+context_variables:
+  region: "us-west-2"
+  ami_id: "ami-0abcdef1234567890"
+  instance_type: "t3.small"
+  upgraded_type: "t3.large"
+  s3_bucket: "my-demo-logs"
+  log_key: "logs/{{ context.uid }}.txt"
+  forecast_limit: 50.0
+  jira_project: "OPS"
+  subnet_id: "subnet-abc123"
+  security_group_ids:
+    - "sg-0011223344"
+
+steps:
+
+  - id: check_forecast
+    type: action
+    action: aws_costs.get_forecast
+    input:
+      start: "{{ now | date_offset(-7, 'days') }}"
+      end: "{{ now | date_offset(0, 'days') }}"
+      metric: "UNBLENDED_COST"
+
+  - id: budget_guard
+    type: condition
+    input:
+      condition: "{{ steps.check_forecast.data[0].Mean | float <= context.forecast_limit }}"
+    fail_message: "Projected cost exceeds threshold."
+
+  - id: provision_instance
+    type: action
+    action: aws_ec2.create_instance
+    input:
+      ami_id: "{{ context.ami_id }}"
+      instance_type: "{{ context.instance_type }}"
+      region: "{{ context.region }}"
+      subnet_id: "{{ context.subnet_id }}"
+      security_group_ids: "{{ context.security_group_ids }}"
+      tag_name: "demo-ephemeral"
+
+  - id: upload_bootstrap_log
+    type: action
+    action: aws_s3.upload_file
+    input:
+      bucket: "{{ context.s3_bucket }}"
+      key: "{{ context.log_key }}"
+      file_path: "/tmp/bootstrap.log"
+
+  - id: get_cpu
+    type: action
+    action: aws_monitoring.get_recent_utilization
+    input:
+      namespace: "AWS/EC2"
+      metric_name: "CPUUtilization"
+      region: "{{ context.region }}"
+      dimensions:
+        - Name: "InstanceId"
+          Value: "{{ steps.provision_instance.data.instance_id }}"
+
+  - id: approve_upgrade
+    type: approval
+    input:
+      title: "Instance CPU under 10%. Upgrade?"
+      message: "Upgrade EC2 {{ steps.provision_instance.data.instance_id }} to {{ context.upgraded_type }}?"
+      timeout_minutes: 15
+
+  - id: upgrade_instance
+    type: action
+    action: aws_ec2.upgrade_instance_type
+    input:
+      instance_id: "{{ steps.provision_instance.data.instance_id }}"
+      new_instance_type: "{{ context.upgraded_type }}"
+      region: "{{ context.region }}"
+
+  - id: notify_jira
+    type: action
+    action: jira_module.create_ticket
+    input:
+      project_key: "{{ context.jira_project }}"
+      summary: "Demo EC2 automation log"
+      issue_type: "Task"
+      description: |
+        Created EC2: {{ steps.provision_instance.data.instance_id }}
+        S3 logs: s3://{{ context.s3_bucket }}/{{ context.log_key }}
+      labels: ["demo", "seyoawe"]
+      custom_fields:
+        customfield_10010: "Low"
+
+  - id: terminate
+    type: action
+    action: aws_ec2.terminate_instance
+    input:
+      instance_id: "{{ steps.provision_instance.data.instance_id }}"
+      region: "{{ context.region }}"
+
+  - id: cleanup_logs
+    type: action
+    action: aws_s3.delete_object
+    input:
+      bucket: "{{ context.s3_bucket }}"
+      key: "{{ context.log_key }}"

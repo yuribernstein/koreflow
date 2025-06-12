@@ -1,0 +1,215 @@
+# =============================================
+# SeyoAWE Full Workflow Example
+# Generated via `sawectl init workflow --full`
+# 
+# 🔗 DSL Reference: https://seyoawe.dev/docs/dsl
+# 🔗 Modules Reference: https://seyoawe.dev/docs/modules
+# 
+# Modify this file to suit your use case.
+# =============================================
+
+workflow:
+  name: full.wf.yaml
+  description: example_string
+  match:
+    conditions:
+    - path: example_string
+      id: example_string
+      operator: equals
+      value: example_value
+    condition_logic: example_string
+  payload_parser:
+  - path: example_string
+    var: example_string
+    absent_action: fail
+  trigger:
+    type: scheduled
+  context_variables:
+  - name: example_string
+    type: example_string
+    default: example_value
+    description: example_string
+  context_modules: {}
+  global_failure_handler: example_value
+  steps:
+  - id: api_module_blocking_call
+    type: action
+    action: api_module.blocking_call
+    input:
+      method: GET
+      url: https://jsonplaceholder.typicode.com/posts/1
+      polling_mode: status_code
+      expected_status_code: 200
+      poll_interval_seconds: 5
+      timeout_minutes: 1
+
+  - id: api_module_call
+    type: action
+    action: api_module.call
+    input:
+      method: GET
+      url: https://jsonplaceholder.typicode.com/posts/1
+      headers:
+        Accept: application/json
+
+  - id: chatbot_module_ask
+    type: action
+    action: chatbot_module.ask
+    input:
+      provider: openai
+      system_prompt: You are a helpful assistant.
+      user_message: What is the capital of France?
+      model: gpt-4
+      temperature: 0.7
+      api_key: sk-xxxxxx
+
+  - id: command_module_run
+    type: action
+    action: command_module.run
+    input:
+      command: echo "Hello, SeyoAWE!"
+      shell: /bin/bash
+      cwd: /tmp
+      user: root
+      env:
+        CUSTOM_VAR: seyoawe
+
+  - id: delegate_remote_workflow_run
+    type: action
+    action: delegate_remote_workflow.run
+    input:
+      repo: https://github.com/your-org/infra-workflows.git
+      branch: main
+      path: workflows/ci/publish.yaml
+      token: ghp_exampletokengoeshere
+      run_conditions:
+      - path: env.type
+        operator: equals
+        value: production
+      - path: payload.force
+        operator: equals
+        value: true
+      condition_logic: 0 or 1
+
+  - id: email_module_send_email
+    type: action
+    action: email_module.send_email
+    input:
+      to: someone@example.com
+      subject: Pipeline Completed
+      body: "<h2>\u2705 Deployment successful!</h2><p>The workflow completed at {{ context.end_time }}.</p>"
+      html: true
+
+  - id: email_module_send_email
+    type: action
+    action: email_module.send_email
+    input:
+      to:
+      - devops@example.com
+      - teamlead@example.com
+      subject: '[GIT] New Pull Request Created'
+      template: pr_created_notification.j2
+      html: true
+
+  - id: git_module_add_file_from_template
+    type: action
+    action: git_module.add_file_from_template
+    input:
+      template: terraform.tf.j2
+      destination: infrastructure/dev/terraform.tf
+      variables:
+        env_name: dev
+        region: us-west-2
+      commit_message: Add Terraform config for dev
+
+  - id: git_module_add_files_from_templates
+    type: action
+    action: git_module.add_files_from_templates
+    input:
+      files:
+      - template: main.tf.j2
+        destination: envs/dev/main.tf
+      - template: variables.tf.j2
+        destination: envs/dev/variables.tf
+      commit_message: Generate TF templates for dev
+
+  - id: git_module_cleanup
+    type: action
+    action: git_module.cleanup
+    input: {}
+
+  - id: git_module_close_pr
+    type: action
+    action: git_module.close_pr
+    input: {}
+
+  - id: git_module_create_branch
+    type: action
+    action: git_module.create_branch
+    input: {}
+
+  - id: git_module_get_status
+    type: action
+    action: git_module.get_status
+    input: {}
+
+  - id: git_module_merge_pr
+    type: action
+    action: git_module.merge_pr
+    input: {}
+
+  - id: git_module_open_pr
+    type: action
+    action: git_module.open_pr
+    input:
+      title: "\U0001F527 Add Terraform for dev"
+      body: This PR adds initial TF configuration for the dev environment.
+
+  - id: slack_module_send_incident_message
+    type: action
+    action: slack_module.send_incident_message
+    input:
+      channel: '#incident-response'
+      message: Production DB unreachable
+      severity: sev1
+      oncall_user: '@dba-team'
+
+  - id: slack_module_send_incident_message
+    type: action
+    action: slack_module.send_incident_message
+    input:
+      channel: '#oncall'
+      message: API latency is elevated
+
+  - id: slack_module_send_info_message
+    type: action
+    action: slack_module.send_info_message
+    input:
+      channel: '#general'
+      title: Daily Report
+      message: All systems are operational.
+      color: info
+
+  - id: slack_module_send_info_message
+    type: action
+    action: slack_module.send_info_message
+    input:
+      channel: '#alerts'
+      title: New Deployment
+      keyed_message:
+      - key: Environment
+        value: production
+      - key: Version
+        value: v1.2.3
+      - key: Triggered by
+        value: GitHub Actions
+      color: good
+
+  - id: slack_module_send_info_message
+    type: action
+    action: slack_module.send_info_message
+    input:
+      channel: '#forms'
+      title: Approval Received
+      flatten_form_result: true
+      color: approved

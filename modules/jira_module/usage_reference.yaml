@@ -1,0 +1,68 @@
+---
+method: create_ticket
+example_input:
+  project_key: "OPS"
+  summary: "Service degradation in EU region"
+  description: "Observed latency spikes in availability zones eu-west-1a and 1b."
+  issue_type: "Incident"
+  assignee: "alex.williams"
+  labels:
+    - "ops"
+    - "latency"
+  components:
+    - "Infrastructure"
+    - "Networking"
+  watchers:
+    - "dev.lead"
+    - "sre.manager"
+  custom_fields:
+    customfield_10010: "High"   # e.g. Priority
+    customfield_10123: "prod"   # e.g. Environment
+
+---
+method: update_ticket
+example_input:
+  issue_key: "OPS-231"
+  fields:
+    description: "Root cause identified in upstream DNS resolution"
+    labels: ["ops", "dns", "resolved"]
+    customfield_10010: "Medium"
+
+---
+method: add_comment
+example_input:
+  issue_key: "OPS-231"
+  comment: "Mitigation in progress. Expect resolution in 15 minutes."
+
+---
+method: get_ticket
+example_input:
+  issue_key: "OPS-231"
+
+---
+method: search_tickets
+example_input:
+  jql: 'project = OPS AND status = "In Progress" AND labels IN ("ops") ORDER BY created DESC'
+
+---
+method: get_status
+example_input:
+  issue_key: "OPS-231"
+
+---
+method: attach_file
+example_input:
+  issue_key: "OPS-231"
+  file_path: "/tmp/incident_report.pdf"
+
+---
+method: transition_ticket
+example_input:
+  issue_key: "OPS-231"
+  transition_id: "31"  # ID for "Resolve Issue" in your Jira flow
+
+---
+method: add_watcher
+example_input:
+  issue_key: "OPS-231"
+  username: "qa.lead"

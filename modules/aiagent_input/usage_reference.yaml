@@ -1,0 +1,5 @@
+method: wait_for_input
+example_input:
+  expected_keys:
+    - next_command
+  timeout_seconds: 120

@@ -1,0 +1,63 @@
+name: aws_ec2
+class: AwsEc2
+version: "1.0"
+author: SeyoAWE
+
+methods:
+  - name: create_instance
+    description: "Launch a new EC2 instance"
+    arguments:
+      - name: ami_id
+        type: string
+        required: true
+      - name: instance_type
+        type: string
+        required: true
+      - name: key_name
+        type: string
+        required: false
+      - name: security_group_ids
+        type: list
+        required: false
+      - name: subnet_id
+        type: string
+        required: false
+      - name: tag_name
+        type: string
+        required: false
+      - name: region
+        type: string
+        required: false
+
+  - name: get_instance_status
+    description: "Check status of an EC2 instance"
+    arguments:
+      - name: instance_id
+        type: string
+        required: true
+      - name: region
+        type: string
+        required: false
+
+  - name: terminate_instance
+    description: "Terminate a running EC2 instance"
+    arguments:
+      - name: instance_id
+        type: string
+        required: true
+      - name: region
+        type: string
+        required: false
+
+  - name: upgrade_instance_type
+    description: "Stop an instance, change its type, and start it again"
+    arguments:
+      - name: instance_id
+        type: string
+        required: true
+      - name: new_instance_type
+        type: string
+        required: true
+      - name: region
+        type: string
+        required: false

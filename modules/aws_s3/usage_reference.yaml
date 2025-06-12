@@ -1,0 +1,44 @@
+---
+method: upload_file
+example_input:
+  bucket: "my-automation-bucket"
+  key: "reports/summary.pdf"
+  file_path: "/tmp/output/summary.pdf"
+
+---
+method: download_file
+example_input:
+  bucket: "my-automation-bucket"
+  key: "logs/run-abc.log"
+  destination_path: "/tmp/fetched.log"
+
+---
+method: generate_presigned_url
+example_input:
+  bucket: "my-automation-bucket"
+  key: "exports/data.csv"
+  expires_in: 3600
+
+---
+method: list_objects
+example_input:
+  bucket: "my-automation-bucket"
+  prefix: "uploads/inbox/"
+
+---
+method: object_exists
+example_input:
+  bucket: "my-automation-bucket"
+  key: "uploads/inbox/vendor_payload.zip"
+
+---
+method: get_object_metadata
+example_input:
+  bucket: "my-automation-bucket"
+  key: "uploads/inbox/vendor_payload.zip"
+
+---
+method: delete_object
+example_input:
+  bucket: "my-automation-bucket"
+  key: "temp/scratch.txt"

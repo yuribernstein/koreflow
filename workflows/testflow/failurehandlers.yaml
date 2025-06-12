@@ -1,0 +1,38 @@
+workflow:
+  name: test_failure_handlers
+
+  match:
+    conditions:
+      - path: payload.mode
+        operator: equals
+        value: "test"
+        id: is_test_mode
+    condition_logic: is_test_mode
+
+  global_failure_handler:
+    id: notify_global_failure
+    type: action
+    action: slack_module.Slack.send_info_message
+    input:
+      channel: "#new-channel"
+      title: "Workflow Failure"
+      message: "Workflow '{{ context.workflow_name }}' failed at step '{{ context.failed_step_id }}' \n\n '{{ context.failed_reason }}'."
+      color: "danger"
+
+  steps:
+    - id: simulate_failure_step
+      type: action
+      action: api_module.API.call
+      input:
+        method: "GET"
+        url: "https://httbin.org/status/200"   # Force failure
+
+
+    - id: normal_step
+      type: action
+      action: slack_module.Slack.send_info_message
+      input:
+        channel: "#new-channel"
+        title: "This Should Not Run"
+        message: "If you see this, failure handling is broken."
+        color: "good"

@@ -1,0 +1,30 @@
+---
+method: create_instance
+example_input:
+  ami_id: "ami-0abcdef1234567890"
+  instance_type: "t3.medium"
+  key_name: "my-key"
+  subnet_id: "subnet-abc123"
+  security_group_ids:
+    - "sg-0011223344"
+  tag_name: "my-temp-instance"
+  region: "us-west-2"
+
+---
+method: get_instance_status
+example_input:
+  instance_id: "i-0123456789abcdef0"
+  region: "us-west-2"
+
+---
+method: terminate_instance
+example_input:
+  instance_id: "i-0123456789abcdef0"
+  region: "us-west-2"
+
+---
+method: upgrade_instance_type
+example_input:
+  instance_id: "i-0123456789abcdef0"
+  new_instance_type: "t3.large"
+  region: "us-west-2"

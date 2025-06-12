@@ -1,0 +1,51 @@
+name: aws_costs
+class: AwsCosts
+version: "1.0"
+author: SeyoAWE
+
+methods:
+  - name: get_costs
+    description: "Retrieve actual cost and usage for a given period, optionally filtered by service, region, or tag"
+    arguments:
+      - name: start
+        type: string
+        required: true
+      - name: end
+        type: string
+        required: true
+      - name: granularity
+        type: string
+        required: false
+      - name: filter
+        type: object
+        required: false
+
+  - name: get_forecast
+    description: "Get AWS cost forecast for the next period based on current usage"
+    arguments:
+      - name: start
+        type: string
+        required: true
+      - name: end
+        type: string
+        required: true
+      - name: metric
+        type: string
+        required: false
+
+  - name: list_services
+    description: "List AWS services with cost activity in a given time range"
+    arguments:
+      - name: start
+        type: string
+        required: true
+      - name: end
+        type: string
+        required: true
+
+  - name: get_budget_status
+    description: "Check actual vs. forecast vs. budget for a named AWS budget"
+    arguments:
+      - name: budget_name
+        type: string
+        required: true

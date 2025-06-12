@@ -1,0 +1,27 @@
+---
+method: get_costs
+example_input:
+  start: "2024-04-01"
+  end: "2024-04-30"
+  granularity: "DAILY"
+  filter:
+    service: "Amazon EC2"
+    region: "us-west-2"
+
+---
+method: get_forecast
+example_input:
+  start: "2024-05-01"
+  end: "2024-05-31"
+  metric: "UNBLENDED_COST"
+
+---
+method: list_services
+example_input:
+  start: "2024-04-01"
+  end: "2024-04-30"
+
+---
+method: get_budget_status
+example_input:
+  budget_name: "monthly-prod-budget"

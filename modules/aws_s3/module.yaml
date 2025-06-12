@@ -1,0 +1,84 @@
+name: aws_s3
+class: AwsS3
+version: "1.0"
+author: SeyoAWE
+
+methods:
+  - name: upload_file
+    description: "Upload a local file to an S3 bucket"
+    arguments:
+      - name: bucket
+        type: string
+        required: true
+      - name: key
+        type: string
+        required: true
+      - name: file_path
+        type: string
+        required: true
+
+  - name: download_file
+    description: "Download an object from S3 to a local path"
+    arguments:
+      - name: bucket
+        type: string
+        required: true
+      - name: key
+        type: string
+        required: true
+      - name: destination_path
+        type: string
+        required: true
+
+  - name: generate_presigned_url
+    description: "Generate a temporary pre-signed URL for an S3 object"
+    arguments:
+      - name: bucket
+        type: string
+        required: true
+      - name: key
+        type: string
+        required: true
+      - name: expires_in
+        type: int
+        required: false
+
+  - name: list_objects
+    description: "List objects in a bucket with optional prefix"
+    arguments:
+      - name: bucket
+        type: string
+        required: true
+      - name: prefix
+        type: string
+        required: false
+
+  - name: object_exists
+    description: "Check whether an object exists in a bucket"
+    arguments:
+      - name: bucket
+        type: string
+        required: true
+      - name: key
+        type: string
+        required: true
+
+  - name: get_object_metadata
+    description: "Get metadata for a given object (size, modified date)"
+    arguments:
+      - name: bucket
+        type: string
+        required: true
+      - name: key
+        type: string
+        required: true
+
+  - name: delete_object
+    description: "Delete an object from a bucket"
+    arguments:
+      - name: bucket
+        type: string
+        required: true
+      - name: key
+        type: string
+        required: true

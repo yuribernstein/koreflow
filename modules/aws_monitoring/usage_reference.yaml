@@ -1,0 +1,45 @@
+---
+method: get_metric_data
+example_input:
+  namespace: "AWS/EC2"
+  metric_name: "CPUUtilization"
+  dimensions:
+    - Name: "InstanceId"
+      Value: "i-1234567890abcdef0"
+  start_time: "2024-05-14T12:00:00Z"
+  end_time: "2024-05-14T13:00:00Z"
+  period: 300
+  stat: "Average"
+
+---
+method: get_metric_data
+example_input:
+  namespace: "AWS/RDS"
+  metric_name: "CPUUtilization"
+  dimensions:
+    - Name: "DBInstanceIdentifier"
+      Value: "prod-db"
+
+---
+method: get_metric_data
+example_input:
+  namespace: "AWS/ApplicationELB"
+  metric_name: "RequestCount"
+  dimensions:
+    - Name: "LoadBalancer"
+      Value: "app/my-alb/123abc"
+
+---
+method: get_recent_utilization
+example_input:
+  namespace: "AWS/EC2"
+  metric_name: "NetworkIn"
+  dimensions:
+    - Name: "InstanceId"
+      Value: "i-0987654321abcdef0"
+  stat: "Sum"
+
+---
+method: check_alarm_status
+example_input:
+  alarm_name: "HighCPUAlarm"

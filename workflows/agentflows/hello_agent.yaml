@@ -1,0 +1,57 @@
+workflow:
+  name: agent_driven_workflow
+  trigger:
+    type: aiagent
+
+  steps:
+    - id: step1
+      type: action
+      action: logger.Logger.run
+      input:
+        message: "Workflow started by agent."
+
+    - id: agent_wait
+      type: action
+      action: aiagent_input.Aiagent_input.wait_for_input
+      input:
+        expected_keys: ["next_command", "instance_type"]
+        timeout_seconds: 300
+      register_output: agent_input
+
+    - id: echo_command
+      type: action
+      action: logger.Logger.run
+      input:
+        message: "Agent said: {{ context.next_command }} (instance type: {{ context.instance_type }})"
+
+    - id: should_create
+      type: condition
+      input:
+        condition: "{{ context.next_command == 'create_ec2' }}"
+        fail_message: "Agent did not request EC2 creation."
+
+    - id: create_instance
+      type: action
+      action: aws_ec2.create_instance
+      input:
+        ami_id: "ami-0abcdef1234567890"
+        instance_type: "{{ context.instance_type }}"
+        region: "us-west-2"
+        tag_name: "agent-provisioned"
+        # optional subnet/security groups for demo:
+        # subnet_id: "subnet-abc123"
+        # security_group_ids:
+        #   - "sg-0123456789abcdef0"
+      register_output: instance_result
+
+    - id: log_done
+      type: action
+      action: logger.Logger.run
+      input:
+        message: "Created instance {{ steps.create_instance.data.instance_id }} of type {{ context.instance_type }}"
+
+# agent_payload :
+# {
+#   "next_command": "create_ec2",
+#   "instance_type": "t3.medium"
+# }

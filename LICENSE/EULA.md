@@ -1,4 +1,4 @@
-## 📜 Koreflow — End-User License Agreement (EULA)
+## Koreflow — End-User License Agreement (EULA)
 
 **Version 1.0**
 **Effective Date:** June 12, 2025
@@ -64,4 +64,4 @@ This Agreement is governed by and construed in accordance with the laws of the *
 By downloading, using, deploying, or modifying Koreflow, you agree to this EULA and the AGPLv3 license.
 
 For questions, licensing, or integration support, contact me via:
-🌐 [yuri.bernstein@gmail.com](yuri.bernstein@gmail.com)
+[yuri.bernstein@gmail.com](yuri.bernstein@gmail.com)

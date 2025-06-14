@@ -2055,6 +2055,6 @@ Koreflow is licensed under the GNU Affero General Public License v3.0 (AGPLv3).
 If you use Koreflow or its derivatives in a commercial product or service (including SaaS), a revenue-sharing agreement applies. You must either:
 
 - Open source your derived work under AGPLv3, or
-- Contact the author to arrange a 1.5% gross revenue share license.
+- Contact the author to arrange a revenue share license.
 
 See [LICENSE](./LICENSE/LICENSE) and [EULA](./LICENSE/EULA.md) for details.

@@ -1,0 +1,22 @@
+workflow:
+  name: defer_workflow_demo
+  trigger:
+    type: api
+
+  context_variables:
+    - name: delay_minutes
+      default: 5
+    - name: calculated_defer_until
+      default: null
+
+  steps:
+
+    - id: pause_briefly
+      type: defer
+      minutes_from_now: 2
+
+    - id: fixed_defer
+      type: defer
+      input:
+        until: "2025-07-01T10:00:00"
+

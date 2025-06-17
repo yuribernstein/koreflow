@@ -402,6 +402,31 @@ def agent_status(uid):
         "status": status
     })
 
+@app.route("/api/resume/<uid>", methods=["POST"])
+def resume_deferred_workflow(uid):
+    path = os.path.join(config["directories"]["lifetimes"], f"{uid}.yaml")
+    if not os.path.exists(path):
+        return jsonify({"status": "error", "message": f"uid {uid} not found"}), 404
+
+    with open(path, "r") as f:
+        lifetime_map = yaml.safe_load(f)
+
+    if "defer_until" not in lifetime_map:
+        return jsonify({"status": "error", "message": "Not a deferred workflow"}), 400
+
+    # Remove defer_until to avoid re-triggering
+    lifetime_map.pop("defer_until", None)
+
+    threading.Thread(
+        target=resume_workflow_from_lifetime,
+        args=(lifetime_map, approval_manager),
+        daemon=True
+    ).start()
+
+    return jsonify({"status": "ok", "resumed": uid})
+
+from engine.utils.defer_manager import run_defer_manager
+run_defer_manager()
 
 
 if __name__ == "__main__":

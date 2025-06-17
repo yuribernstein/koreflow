@@ -15,6 +15,8 @@ from engine.utils.preflight_module.preflight import Preflight
 from engine.state.lifetime_manager import lifetime_manager
 from engine.utils.config_merge import merge_module_config
 from commons.logs import get_logger
+from engine.builtin.defer_step import resolve_defer_time
+
 logger = get_logger("workflow_engine")
 
 from commons.get_config import get_config
@@ -267,6 +269,25 @@ class WorkflowEngine:
                 return self._run_webform_step(step)
             elif step["type"] == "approval":
                 return self._run_approval_step(step)
+            elif step["type"] == "defer":
+                defer_until = resolve_defer_time(step, self.context)
+                now = datetime.utcnow()
+                if defer_until > now:
+                    # Set future time in both context and lifetime
+                    self.context.set("defer_until", defer_until.isoformat())
+                    self.lifetime_map["defer_until"] = defer_until.isoformat()
+
+                    # Move current_step to the next step
+                    next_step = self.get_next_step_id(step["id"])
+                    if not next_step:
+                        raise RuntimeError(f"[DEFER] No next step found after '{step['id']}'")
+
+                    self.lifetime_map["current_step"] = next_step
+                    self.save_lifetime()
+
+                    logger.info(f"[DEFER] Workflow {self.workflow_uid} paused until {defer_until}")
+                    return  # stop execution
+
             else:
                 raise ValueError(f"Unsupported step type: {step['type']}")
         except Exception as e:
@@ -280,6 +301,13 @@ class WorkflowEngine:
                 self._run_inline_step(step["step_failure_handler"])
 
             raise
+
+    def get_next_step_id(self, current_step_id):
+        steps = self.workflow.get("steps", [])
+        for idx, s in enumerate(steps):
+            if s.get("id") == current_step_id and idx + 1 < len(steps):
+                return steps[idx + 1].get("id")
+        return None
 
 
     def _run_webform_step(self, step):

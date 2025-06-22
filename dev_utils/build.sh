@@ -2,8 +2,8 @@
 
 set -e
 
-APP_NAME="seyoawe"
-ENTRY_POINT="web.py"
+APP_NAME="koreflow"
+ENTRY_POINT="koreflow.py"
 
 if [ -z $1 ]; then
   BUILD_DIR="./build"
@@ -11,12 +11,16 @@ else
   BUILD_DIR=$1
 fi
 
+python3 -m venv _venv_
+source _venv_/bin/activate
+
+pip3 install --upgrade pip
+pip3 install -r ../requirements.txt
 
 echo "🧹 [1/5] Cleaning previous build..."
 mkdir -p "$BUILD_DIR"
 rm -rf "$BUILD_DIR"/*
 
-source ./seyoawe/bin/activate
 
 echo "⚙️ [2/5] Building $APP_NAME binary with Nuitka..."
 
@@ -33,6 +37,7 @@ python3 -m nuitka \
   --nofollow-import-to=configuration \
   --include-data-dir=engine=./engine \
   --include-data-dir=commons=./commons \
+  --include-module=smtplib \
   "$ENTRY_POINT"
 
 echo "📦 [3/5] Copying runtime folders next to the binary..."
@@ -50,6 +55,3 @@ echo "🚀 To run: cd $BUILD_DIR && ./$APP_NAME"
 
 echo "🧽 [5/5] Cleaning up Nuitka temp build artifacts..."
 rm -rf $BUILD_DIR/web.build $BUILD_DIR/web.dist $BUILD_DIR/web.onefile-build
-
-
-# docker run --rm -v /Users/ybernstein/repos/seyoawe/seyoawe-execution-plane/build:/opt/seyoawe/build seyoawe

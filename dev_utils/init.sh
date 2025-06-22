@@ -13,4 +13,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 echo "[INIT] Starting web.py server..."
-python3 web.py
+python3 koreflow.py

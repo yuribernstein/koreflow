@@ -1,5 +1,5 @@
 name: jira_module
-class: JiraModule
+class: Jira
 version: "1.0"
 author: SeyoAWE
 
